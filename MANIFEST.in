@@ -1,0 +1,4 @@
+include LICENSE
+include README.md
+recursive-include cnn_raccoon/static *
+recursive-include cnn_raccoon/templates *
