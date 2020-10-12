@@ -1,4 +1,4 @@
-# CNN Raccoon v0.0.3
+# CNN Raccoon v0.5.0
 
 
 ## Contact
