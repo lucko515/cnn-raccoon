@@ -1,0 +1,256 @@
+<!doctype html>
+<html>
+<head>
+    <title>CNN Inspector</title>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js/v2.7.16/dist/cytoscape.js"></script>
+    <script src="https://cdn.rawgit.com/cpettitt/dagre/v0.7.3/dist/dagre.js"></script>
+    <script src="https://cdn.rawgit.com/cytoscape/cytoscape.js-dagre/1.4.0/cytoscape-dagre.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <!-- Latest compiled and minified CSS -->
+    <link  rel="stylesheet"
+           href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+           crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous">
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.rawgit.com/twbs/bootstrap/v4-dev/dist/js/bootstrap.js"></script>
+
+    <!-- Material Design Bootstrap -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.18.0/css/mdb.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+</head>
+
+<body>
+
+    <div class="wrapper">
+        <div class="sidebar">
+            <h2>CNN RACCOON</h2>
+            <ul>
+                <li><a href="#" class="tablinks" onclick="openAnalytics('weights')">Weights</a></li>
+                <li><a href="#" class="tablinks" onclick="openAnalytics('grad-analysis')">Grad Cam</a></li>
+                <li><a href="#" class="tablinks" onclick="openAnalytics('saliency-map-analysis')">Saliency Maps</a></li>
+            </ul>
+        </div>
+
+        <div class="container-fluid h-100 content-holder">
+
+            <div class="row">
+                <div id="analytics" class="container-fluid">
+
+                    <div class="row h-100">
+                        <div class="col-lg-4">
+                            <div class="row input-images-container">
+                                <div class="col-lg-12 ">
+                                    <h1>Input images</h1>
+                                    <ul id="input-images-container" class="input-img-list">
+                                        <template id="input-image-template">
+                                            <li>
+                                                <img src="" alt="input-img" id="input-img" class="inputImgSelector" onclick="imageSelector(event)">
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="row layer-info-container">
+                                <div class="col-lg-12">
+                                    Layer arguments
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+
+                            <!-- WEIGHTS -->
+                             <div id="weights" class="col-lg-8 gallery h-100 tabcontent">
+                                <h1 id="weights-title">Weights from the layer</h1>
+                                <ul id="weights-container" class="thumbnails">
+                                    <template id="weights-template">
+                                        <li>
+                                            <img src="" alt="weights-img" id="weights-img">
+                                        </li>
+                                    </template>
+                                </ul>
+
+                             </div>
+
+
+
+                            <!-- GRAD CAM -->
+                            <div id="grad-analysis" class="col-lg-8 gallery h-100 tabcontent">
+                                <h1>Grad cam results</h1>
+                                <ul id="grad-cam-container" class="grad-cam-list">
+                                    <template id="grad-cam-template">
+                                        <li>
+                                            <img src="" alt="grad-cam-img" id="grad-cam-img">
+                                            <h3 id="img-desc">Image desc</h3>
+                                        </li>
+                                    </template>
+                                </ul>
+                            </div>
+
+
+                            <!-- GRAD CAM -->
+                            <div id="saliency-map-analysis" class="col-lg-8 gallery h-100 tabcontent">
+                                <h1>Saliency map results</h1>
+                                <div id="saliency-map-container" class="grad-cam-list">
+                                    <template id="saliency-map-template">
+                                        <img src="" alt="grad-cam-img" id="saliency-map-img">
+                                    </template>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="cy"></div>
+
+
+<script src="{{url_for('static', filename='js/tabs.js')}}"></script>
+<script>
+    let weights = document.getElementById("weights");
+    weights.style.display = "block";
+</script>
+<script>
+    var cy = cytoscape({
+        container: document.querySelector('#cy'),
+        autolock: false,
+        userZoomingEnabled: true,
+        maxZoom:10,
+        layout: {
+            name: 'dagre',
+            rankDir: 'LR'
+        },
+
+        style: cytoscape.stylesheet()
+            .selector('node')
+            .css({
+                'shape': 'data(faveShape)',
+                'content': 'data(name)',
+                'color': '#000000'
+            })
+            .selector(':selected')
+            .css({
+                'border-width': 1,
+                'border-color': '#333'
+            })
+            .selector('edge')
+            .css({
+                'curve-style': 'bezier',
+                'opacity': 0.666,
+                'width': 'mapData(strength, 70, 100, 2, 6)',
+                'target-arrow-shape': 'triangle',
+                'source-arrow-shape': 'none',
+                'line-color': 'data(faveColor)',
+                'source-arrow-color': 'data(faveColor)',
+                'target-arrow-color': 'data(faveColor)'
+            })
+            .selector('edge.questionable')
+            .css({
+                'line-style': 'dotted',
+                'target-arrow-shape': 'diamond'
+            })
+            .selector('.faded')
+            .css({
+                'opacity': 0.25,
+                'text-opacity': 0
+            }),
+
+        elements: {
+            nodes: JSON.parse({{ nodes | tojson }}),
+            edges: JSON.parse({{ edges | tojson }})
+        }
+    });
+    cy.nodes().ungrabify();
+
+
+</script>
+
+<script>
+
+    let weightsContainer = document.querySelector("#weights-container");
+    let gramCamContainer = document.querySelector("#grad-cam-container");
+    let inputImageContainer = document.querySelector("#input-images-container");
+    let saliencyMapContainer = document.querySelector("#saliency-map-container");
+    let template_weights = document.querySelector('#weights-template');
+    let template_gram_cam = document.querySelector('#grad-cam-template');
+    let template_input_image = document.querySelector('#input-image-template');
+    let template_saliency_map = document.querySelector('#saliency-map-template');
+
+    // static/{{ path }}
+    let weights_paths = JSON.parse({{ weights_paths | tojson }});
+    let grad_cam_paths = JSON.parse({{ grad_cam_paths | tojson }});
+    let saliency_map_paths = JSON.parse({{ saliency_map_paths | tojson }});
+    let input_images_paths = JSON.parse({{ input_images | tojson }});
+
+    // input_images
+    let input_image_ids = Object.keys(input_images_paths);
+    for (let i = 0; i < input_image_ids.length; i++) {
+         let template_clone = template_input_image.content.cloneNode(true);
+         template_clone.querySelector("#input-img").src = "static/" + input_images_paths[i];
+         template_clone.querySelector("#input-img").alt = i.toString();
+
+         if (i===0){
+             template_clone.querySelector("#input-img").classList.add("selected-img");
+         }
+        inputImageContainer.appendChild(template_clone);
+     }
+
+
+    // Weights segment
+    let weights_layer_names = Object.keys(weights_paths);
+    let selected_image_id = 0;
+    let selected_layer_name = weights_layer_names[0]
+
+    // Grad cam images
+    let grad_cam_image_ids = Object.keys(grad_cam_paths);
+
+
+    // Saliency map segment
+    let saliency_map_layer_names = Object.keys(saliency_map_paths);
+
+    calculateParams(selected_image_id, selected_layer_name);
+</script>
+
+<script>
+    // Graph interactions
+
+    cy.on('tap', 'node', function(e) {
+        let node = e.cyTarget;
+        let neighborhood = node.neighborhood().add(node);
+
+        cy.elements().addClass('faded');
+        neighborhood.removeClass('faded');
+
+        let temp_id = node.id();
+        if (weights_layer_names.includes(temp_id)){
+            selected_layer_name  = temp_id;
+            calculateParams(selected_image_id, selected_layer_name);
+        }else{
+            console.warn("Not in layers!", selected_layer_name);
+        }
+    });
+
+
+    cy.on('tap', function(e) {
+        if (e.cyTarget === cy) {
+            cy.elements().removeClass('faded');
+        }
+    });
+
+</script>
+</body>
+</html>
