@@ -1,6 +1,5 @@
 import os
-import cv2
-import numpy as np
+import datetime
 
 import torch.nn as nn
 from torchvision.utils import save_image
@@ -11,6 +10,13 @@ from cnn_raccoon import images_top_dir, img_relative_path
 
 
 def weights_inspector(weights, images):
+    """
+    This function calculates feature maps for all conv and maxpooling layers in the model,
+    Creates temp dir and saves all feature maps in the .JEPG folder and expose them to the Flask server.
+
+    :param weights: PyTorch model created to output weights instead of predictions
+    :param images: Input images loaded from the Inspector
+    """
     weights_top_dir = images_top_dir + "/weights"
 
     if not os.path.exists(weights_top_dir):
@@ -42,9 +48,11 @@ def weights_inspector(weights, images):
 
                 for f_num in range(out.shape[0]):
                     if out.shape[-1] > 3 and out.shape[-2] > 3:
-                        _path = image_dir + '/filter_{}.jpg'.format(f_num)
+                        ts = datetime.datetime.now().timestamp()
+
+                        _path = image_dir + '/filter_{}_{}.jpg'.format(str(ts).replace(".", ""), f_num)
                         weights_relative = img_relative_path + "/weights" + "/{}".format(layer) + "/img_{}".format(
-                            img_id) + '/filter_{}.jpg'.format(f_num)
+                            img_id) + '/filter_{}_{}.jpg'.format(str(ts).replace(".", ""), f_num)
 
                         _out = F.interpolate(out[f_num].unsqueeze(dim=1), size=128)
 
@@ -59,9 +67,15 @@ def weights_inspector(weights, images):
                             weights_results[layer][img_id] = [weights_relative]
 
 
-
-
 def grad_cam_inspector(grad_cam, images, grad_cam_classes):
+    """
+    This function calculates grad_cam for all input images across selected set of classes [grad_cam_classes],
+    Creates temp dir and saves all grad_cam_results in the .JEPG folder and expose them to the Flask server.
+
+    :param grad_cam: PyTorch model optimized to output results for GradCam
+    :param images: Input images loaded from the Inspector
+    :param grad_cam_classes: List of classes selected for GradCam analysis
+    """
     grad_cam_top_dir = images_top_dir + "/grad_cam"
     if not os.path.exists(grad_cam_top_dir):
         os.mkdir(grad_cam_top_dir)
@@ -81,10 +95,11 @@ def grad_cam_inspector(grad_cam, images, grad_cam_classes):
 
         for _class in grad_cam_classes:
             out, _ = grad_cam(img, None, target_class=_class)
+            ts = datetime.datetime.now().timestamp()
 
-            _path = image_dir + '/grad_cam_class_{}.jpg'.format(_class)
+            _path = image_dir + '/grad_cam_class_{}_{}.jpg'.format(str(ts).replace(".", ""), _class)
             grad_cam_relative = img_relative_path + "/grad_cam" + "/img_{}".format(img_id) \
-                                + '/grad_cam_class_{}.jpg'.format(_class)
+                                + '/grad_cam_class_{}_{}.jpg'.format(str(ts).replace(".", ""), _class)
 
             out = F.interpolate(out, size=128)
             save_image(out, _path)
@@ -96,6 +111,13 @@ def grad_cam_inspector(grad_cam, images, grad_cam_classes):
 
 
 def saliency_map_inspector(saliency_map, images):
+    """
+    This function calculates saliency_maps for all input images across all layers in the model,
+    Creates temp dir and saves all grad_cam_results in the .JEPG folder and expose them to the Flask server.
+
+    :param saliency_map: PyTorch model optimized to output results for SaliencyMap
+    :param images: Input images loaded from the Inspector
+    """
     saliency_map_top_dir = images_top_dir + "/saliency_map"
     if not os.path.exists(saliency_map_top_dir):
         os.mkdir(saliency_map_top_dir)
@@ -126,10 +148,10 @@ def saliency_map_inspector(saliency_map, images):
                 out, _ = saliency_map(img, layer_obj)
 
                 out = out.squeeze()
-
-                _path = image_dir + '/saliency_map.jpg'
+                ts = datetime.datetime.now().timestamp()
+                _path = image_dir + '/saliency_map_{}.jpg'.format(str(ts).replace(".", ""))
                 saliency_map_relative = img_relative_path + "/saliency_map" + "/{}".format(layer) + "/img_{}".format(
-                    img_id) + '/saliency_map.jpg'
+                    img_id) + '/saliency_map_{}.jpg'.format(str(ts).replace(".", ""))
 
                 out = F.interpolate(out.unsqueeze(dim=0).unsqueeze(dim=0), size=128)
                 save_image(out, _path)
@@ -141,4 +163,3 @@ def saliency_map_inspector(saliency_map, images):
                     saliency_map_results[layer][img_id].append(saliency_map_relative)
                 else:
                     saliency_map_results[layer][img_id] = [saliency_map_relative]
-

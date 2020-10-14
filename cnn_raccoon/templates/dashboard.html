@@ -28,18 +28,64 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.18.0/css/mdb.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
+    <!-- Roboto font -->
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
 </head>
 
 <body>
 
     <div class="wrapper">
         <div class="sidebar">
-            <h2>CNN RACCOON</h2>
-            <ul>
-                <li><a href="#" class="tablinks" onclick="openAnalytics('weights')">Weights</a></li>
-                <li><a href="#" class="tablinks" onclick="openAnalytics('grad-analysis')">Grad Cam</a></li>
-                <li><a href="#" class="tablinks" onclick="openAnalytics('saliency-map-analysis')">Saliency Maps</a></li>
-            </ul>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="logo-place">
+                            <img src="{{ url_for('static', filename='images/ui/cnn_logo.png') }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 container-col-class" >
+                         <ul>
+                            <li>
+                                <a href="#" id="weights-tab" class="tablinks active-tab" onclick="openAnalytics('weights', 'weights-tab')">
+                                    <img class="item-img" src="{{ url_for('static', filename='images/ui/fp.png') }}"> Feature maps
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="grad-tab" class="tablinks" onclick="openAnalytics('grad-analysis', 'grad-tab')">
+                                    <img class="item-img" src="{{ url_for('static', filename='images/ui/grad_cam.png') }}"> Grad Cam
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="saliency-tab" class="tablinks" onclick="openAnalytics('saliency-map-analysis', 'saliency-tab')">
+                                    <img class="item-img" src="{{ url_for('static', filename='images/ui/saliency.png') }}"> Saliency Maps
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid cta-container">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h4>made by Luka Anicin</h4>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="cta text-center">
+                             <a href="https://www.linkedin.com/in/luka-anicin/">
+                                <div class="custom-button text-center align-content-center d-flex">
+                                    Creator's website &#x203A;
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div class="container-fluid h-100 content-holder">
@@ -62,17 +108,17 @@
                                 </div>
                             </div>
                             <div class="row layer-info-container">
-                                <div class="col-lg-12">
+                                <div class="col-lg-12" id="layer-info">
                                     Layer arguments
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col">
+                        <div class="col tab-container">
 
                             <!-- WEIGHTS -->
                              <div id="weights" class="col-lg-8 gallery h-100 tabcontent">
-                                <h1 id="weights-title">Weights from the layer</h1>
+                                <h1 id="weights-title">Feature maps from the layer</h1>
                                 <ul id="weights-container" class="thumbnails">
                                     <template id="weights-template">
                                         <li>
@@ -99,12 +145,12 @@
                             </div>
 
 
-                            <!-- GRAD CAM -->
+                            <!-- SALIENCY CAM -->
                             <div id="saliency-map-analysis" class="col-lg-8 gallery h-100 tabcontent">
-                                <h1>Saliency map results</h1>
-                                <div id="saliency-map-container" class="grad-cam-list">
+                                <h1 id="saliency-map-title">Saliency map results</h1>
+                                <div id="saliency-map-container" class="saliency-list">
                                     <template id="saliency-map-template">
-                                        <img src="" alt="grad-cam-img" id="saliency-map-img">
+                                        <img src="" alt="saliency-img" id="saliency-map-img">
                                     </template>
                                 </div>
                             </div>
@@ -116,7 +162,20 @@
             </div>
         </div>
 
+         <div class="engine-logo fixed-bottom">
+            <h3>
+              Backend:
+            </h3>
+            {% if backend == "keras" %}
+                <img src="{{ url_for('static', filename='images/logos/tf.png') }}">
+            {% else %}
+                <img src="{{ url_for('static', filename='images/logos/pytorch.png') }}">
+            {% endif %}
+        </div>
+
         <div id="cy"></div>
+
+
 
 
 <script src="{{url_for('static', filename='js/tabs.js')}}"></script>
@@ -145,7 +204,9 @@
             .selector(':selected')
             .css({
                 'border-width': 1,
-                'border-color': '#333'
+                'border-color': '#EF5D59',
+                'color':'#EF5D59',
+                'background-color':'#EF5D59'
             })
             .selector('edge')
             .css({
@@ -176,7 +237,6 @@
     });
     cy.nodes().ungrabify();
 
-
 </script>
 
 <script>
@@ -195,6 +255,7 @@
     let grad_cam_paths = JSON.parse({{ grad_cam_paths | tojson }});
     let saliency_map_paths = JSON.parse({{ saliency_map_paths | tojson }});
     let input_images_paths = JSON.parse({{ input_images | tojson }});
+    let layer_info_dict = {{ layer_info_dict | tojson }};
 
     // input_images
     let input_image_ids = Object.keys(input_images_paths);
@@ -214,10 +275,14 @@
     let weights_layer_names = Object.keys(weights_paths);
     let selected_image_id = 0;
     let selected_layer_name = weights_layer_names[0]
+    document.querySelector("#weights-title").innerHTML = "Feature maps for - " + selected_layer_name;
+    document.querySelector("#saliency-map-title").innerHTML = "Saliency map for - " + selected_layer_name;
+
+
+    document.querySelector('#layer-info').innerHTML = layer_info_dict[selected_layer_name];
 
     // Grad cam images
     let grad_cam_image_ids = Object.keys(grad_cam_paths);
-
 
     // Saliency map segment
     let saliency_map_layer_names = Object.keys(saliency_map_paths);
@@ -230,14 +295,13 @@
 
     cy.on('tap', 'node', function(e) {
         let node = e.cyTarget;
-        let neighborhood = node.neighborhood().add(node);
-
-        cy.elements().addClass('faded');
-        neighborhood.removeClass('faded');
 
         let temp_id = node.id();
+        document.querySelector('#layer-info').innerHTML = layer_info_dict[temp_id];
         if (weights_layer_names.includes(temp_id)){
             selected_layer_name  = temp_id;
+            document.querySelector("#weights-title").innerHTML = "Feature maps for - " + temp_id;
+            document.querySelector("#saliency-map-title").innerHTML = "Saliency map for - " + temp_id;
             calculateParams(selected_image_id, selected_layer_name);
         }else{
             console.warn("Not in layers!", selected_layer_name);

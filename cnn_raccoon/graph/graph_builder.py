@@ -1,4 +1,11 @@
-from cnn_raccoon import nodes, edges, layers_dict
+"""
+This file contains JavaScript Graph builders for Keras (TensorFlow) and PyTorch models.
+
+NOTE: Dependencies are imported in functions in purpose so people don't have to
+      install both TensorFlow and PyTorch on their machines.
+"""
+
+from cnn_raccoon import nodes, edges, layers_dict, layer_info_dict
 
 
 def keras_graph(model):
@@ -17,6 +24,9 @@ def keras_graph(model):
         else:
             nodes.append({"data": {"id": layer.name, "name": layer.name, "faveColor": '#F5A45D',
                                    "faveShape": 'hexagon'}})
+
+        layers_dict[layer.name] = layer
+        layer_info_dict[layer.name] = str(layer.get_config())
 
     for n in range(len(nodes) - 1):
         node = nodes[n]
@@ -49,6 +59,7 @@ def pytorch_graph(layers):
                                    "faveShape": 'hexagon'}})
 
         layers_dict[name] = layers[l]
+        layer_info_dict[name] = str(layers[l])
 
     for n in range(len(nodes) - 1):
         node = nodes[n]

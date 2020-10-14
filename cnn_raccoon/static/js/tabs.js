@@ -1,6 +1,9 @@
-function openAnalytics(tabId) {
-
+function openAnalytics(tabId, menuItemId) {
+    /*
+        Function that handles UI interactions with side menu in the Dashboard.
+     */
   let tabcontent = document.getElementsByClassName("tabcontent");
+  let menu_elements = document.getElementsByClassName("tablinks");
 
   for (let i = 0; i < tabcontent.length; i++) {
     if (tabcontent[i].id === tabId){
@@ -9,9 +12,20 @@ function openAnalytics(tabId) {
       tabcontent[i].style.display = "none";
     }
   }
+
+  for (let i = 0; i < menu_elements.length; i++) {
+    if (menu_elements[i].id === menuItemId){
+      menu_elements[i].classList.add("active-tab");
+    }else{
+      menu_elements[i].classList.remove("active-tab");
+    }
+  }
 }
 
 function imageSelector(evt){
+    /*
+        Helper function to create visual effect on the selected Image in the Dashboard.
+     */
   let inputImages = document.getElementsByClassName("inputImgSelector");
 
   for (let i = 0; i < inputImages.length; i++) {
@@ -28,7 +42,9 @@ function imageSelector(evt){
 }
 
 function calculateParams(image_id, layer_id){
-
+    /*
+        Calculates model params (Feature maps, GradCam, Saliency maps) based on the selected layer and image.
+     */
     document.getElementById("weights-container").innerHTML = "";
     document.getElementById("grad-cam-container").innerHTML = "";
     document.getElementById("saliency-map-container").innerHTML = "";
@@ -50,12 +66,16 @@ function calculateParams(image_id, layer_id){
     gramCamContainer.appendChild(template_clone);
    }
 
-   // Saliency Map
-   let saliency_maps = saliency_map_paths[layer_id][image_id];
+   try{
+       // Saliency Map
+       let saliency_maps = saliency_map_paths[layer_id][image_id];
 
-   console.warn(saliency_map_paths[layer_id][image_id]);
-   let template_clone = template_saliency_map.content.cloneNode(true);
-   template_clone.querySelector("#saliency-map-img").src = "static/" + saliency_maps;
-   saliencyMapContainer.appendChild(template_clone);
+       let template_clone = template_saliency_map.content.cloneNode(true);
+       template_clone.querySelector("#saliency-map-img").src = "static/" + saliency_maps;
+       saliencyMapContainer.appendChild(template_clone);
+   }
+   catch (err){
+       console.warn("Saliency map not calculated.");
+   }
 
 }

@@ -2,6 +2,7 @@
 import os
 import cv2
 import torch
+import datetime
 import numpy as np
 
 from torchvision.utils import save_image
@@ -12,6 +13,9 @@ from cnn_raccoon import images_top_dir, img_relative_path
 
 
 def tensor_image_converter(tensor):
+    """
+    Converts PyTorch Tensor to Numpy Array (Image)
+    """
     tensor = tensor.squeeze()
 
     if len(tensor.shape) > 2:
@@ -24,11 +28,6 @@ def tensor_image_converter(tensor):
 def module2traced(module, inputs):
     """
     Function taken from: https://github.com/FrancescoSaverioZuppichini/A-journey-into-Convolutional-Neural-Network-visualization-
-
-
-    :param module:
-    :param inputs:
-    :return:
     """
     handles, modules = [], []
 
@@ -71,10 +70,6 @@ def convert_to_grayscale(cv2im):
 def image2cam(image, cam):
     """
     Credits to: https://github.com/FrancescoSaverioZuppichini/A-journey-into-Convolutional-Neural-Network-visualization-
-
-    :param image:
-    :param cam:
-    :return:
     """
     h, w, c = image.shape
     cam -= np.min(cam)
@@ -93,10 +88,6 @@ def image2cam(image, cam):
 def tensor2cam(image, cam):
     """
     Credits to: https://github.com/FrancescoSaverioZuppichini/A-journey-into-Convolutional-Neural-Network-visualization-
-
-    :param image:
-    :param cam:
-    :return:
     """
     image_with_heatmap = image2cam(image.squeeze().permute(1, 2, 0).cpu().numpy(), cam.detach().cpu().numpy())
 
@@ -104,15 +95,21 @@ def tensor2cam(image, cam):
 
 
 def save_input_images(images):
+    """
+    Saves input images and expose them to the Flask server.
 
+    :param images: Input images taken from Inspector
+    """
     input_images = images_top_dir + "/input_images"
 
     if not os.path.exists(input_images):
         os.mkdir(input_images)
 
     for i in range(images.shape[0]):
-        img_path = input_images + "/img_{}.jpg".format(i)
-        img_relative = img_relative_path + "/input_images" + "/img_{}.jpg".format(i)
+        ts = datetime.datetime.now().timestamp()
+
+        img_path = input_images + "/img_{}_{}.jpg".format(str(ts).replace(".", ""), i)
+        img_relative = img_relative_path + "/input_images" + "/img_{}_{}.jpg".format(str(ts).replace(".", ""), i)
 
         image = images[i]
         image = F.interpolate(image, size=128)
