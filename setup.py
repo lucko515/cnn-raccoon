@@ -4,9 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(name='cnn-raccoon',
-      version='0.9',
-      description='CNN Raccoon: Analise Convolutional Neural Network with ease! (Tensorflow and PyTorch '
-                  'supported)',
+      version='0.9.5',
+      description='Create interactive dashboards for your Convolutional Neural Networks (CNNs) with a single line of code!',
       long_description=long_description,
       include_package_data=True,
       long_description_content_type="text/markdown",

@@ -7,7 +7,8 @@ from tensorflow.keras.layers import Conv2D, GlobalAveragePooling2D
 
 def grad_cam_helper(model, image, class_id):
     """
-    Source : https://keras.io/examples/vision/grad_cam/
+    Original source : https://keras.io/examples/vision/grad_cam/
+    My implementation is optimized to work for this library.
     """
     # Find what is the last convolutional layer in the network
     last_conv_layer = None
@@ -21,8 +22,9 @@ def grad_cam_helper(model, image, class_id):
     # layer to the final class predictions
     classifier_input = keras.Input(shape=last_conv_layer.output.shape[1:])
 
-    classifier_layers = [GlobalAveragePooling2D(), model.layers[-1]]
+    classifier_layers = [GlobalAveragePooling2D()]
 
+    # TODO: Add prediction layer to the classifier_layers list to have better (high-res) heat-maps
     x = classifier_input
     for layer in classifier_layers:
         x = layer(x)

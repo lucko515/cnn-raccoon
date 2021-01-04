@@ -10,6 +10,8 @@ class Base:
     def __init__(self, module):
         self.module = module
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        # Make sure that both model and all parameters are on the same device
+        self.module.to(self.device)
         self.handles = []
 
     def clean(self):
@@ -29,7 +31,7 @@ class Weights(Base):
 
     def __call__(self, inputs, layer, *args, **kwargs):
         layer.register_forward_hook(self.hook)
-        self.module(inputs)
+        self.module(inputs.to(self.device))
 
         b, c, h, w = self.outputs.shape
         outputs = self.outputs.view(c, b, h, w)

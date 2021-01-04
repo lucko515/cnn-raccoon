@@ -8,11 +8,11 @@ class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
 
-        self.conv1 = nn.Conv2d(3, 24, 5)
-        self.b1 = nn.BatchNorm2d(24)
+        self.conv1 = nn.Conv2d(3, 32, 3)
+        self.b1 = nn.BatchNorm2d(32)
         self.pool = nn.MaxPool2d(2, 2)
 
-        self.conv2 = nn.Conv2d(24, 64, 5)
+        self.conv2 = nn.Conv2d(32, 64, 5)
         self.b2 = nn.BatchNorm2d(64)
 
         self.fc1 = nn.Linear(64 * 5 * 5, 240)
@@ -30,8 +30,6 @@ class Net(nn.Module):
 
 
 model = Net()
-
-
 
 transform = transforms.Compose(
     [ transforms.ToTensor(),

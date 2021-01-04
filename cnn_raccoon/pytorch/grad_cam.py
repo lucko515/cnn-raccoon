@@ -59,7 +59,6 @@ class GradCam(Base):
             self.guide(self.module)
 
         input_var = Variable(input_image, requires_grad=True).to(self.device)
-
         predictions = self.module(input_var)
 
         if target_class is None:

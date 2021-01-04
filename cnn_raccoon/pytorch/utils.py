@@ -43,7 +43,9 @@ def module2traced(module, inputs):
 
     traverse(module)
 
-    _ = module(inputs)
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    module = module.to(device)
+    _ = module(inputs.to(device))
 
     [h.remove() for h in handles]
 
