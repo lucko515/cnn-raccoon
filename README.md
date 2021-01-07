@@ -40,8 +40,6 @@ from cnn_raccoon import inspector
 inspector(model=model, images=X_train[:10], number_of_classes=10, engine="keras")
 ```
 
-![](images/kmeans-vt.gif)
-
 ### PyTorch mode
 
 If you decide to use CNN Raccoon for your PyTorch model, you'll implement your model in the same way as before. 
@@ -72,19 +70,18 @@ from cnn_raccoon import inspector
 inspector(model=model, images=images, number_of_classes=10, engine="keras")
 ```
 
-![](images/kmeans-vt.gif)
-
 
 ### Interactive network graph
 
 This library generates an interactive graph of your CNN directly in a browser. This graph allows you to click and inspect each layer inside your model.
 
+![](images/graph.gif)
 
 ### Weights inspector
 
 Visualization of each Convolutional filter from your network
 
-![](images/th.gif)
+![](images/weights.gif)
 
 
 ### GradCam
@@ -96,7 +93,7 @@ via Gradient-based Localization
 To learn more about GradCam and Class Activation maps I do suggest reading through [this post](https://towardsdatascience.com/interpretability-in-deep-learning-with-w-b-cam-and-gradcam-45ba5296a58a). 
 
 
-![](images/inter-q.png)
+![](images/gradcam.gif)
 
 ### Siliency Maps
 
@@ -107,7 +104,7 @@ Image Classification Models and Saliency Maps
 To learn more about Saliency Maps I do suggest reading through [this post](https://analyticsindiamag.com/what-are-saliency-maps-in-deep-learning/). 
 
 
-![](images/sklearn.gif)
+![](images/saliency.gif)
 
 
 ## Installation

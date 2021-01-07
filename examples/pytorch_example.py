@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 
+
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
@@ -32,7 +33,7 @@ class Net(nn.Module):
 model = Net()
 
 transform = transforms.Compose(
-    [ transforms.ToTensor(),
+    [transforms.ToTensor(),
      transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
 trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
