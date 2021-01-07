@@ -11,19 +11,17 @@
 <h4 style="text-align: center;">Create interactive dashboards for your Convolutional Neural Networks (CNNs) with a single line of code!</h4>
 
 ---
-__CNN Raccoon__ helps you with inspecting what's going on inside your Convolutional Neural Networks, in visual and easy to understand way.
-
+__CNN Raccoon__ helps you with inspecting what's going on inside your Convolutional Neural Networks in a visual way that's easy to understand.
+Oh! Did I mention that you don't need to change your code at all? And that you can do all of this on a single line of Python code?
 
 
 ## How to use it?
 
 ### TensorFlow mode
 
-For the clustering example, let's import KMeans and demonstrate how to use it with the ML Tutor library.
-Notice that you can train/test it just like any `sklearn` algorithm.
-
-Each algorithm has several arguments you can provide, but the unique one across all of them is `visual_training`. 
-If you set this to `True`, you will see the whole training process inside your IDE.
+When using CNN Raccoon for a TensorFlow (Keras) based model, you'll implement your model in the same way as before. 
+To load images from your dataset into CNN Raccoon, convert them to `np.array` object.
+Check an example below for the `CIFAR10` dataset. 
 
 ```python
 model = tf.keras.models.Sequential([ ... ])
@@ -46,11 +44,10 @@ inspector(model=model, images=X_train[:10], number_of_classes=10, engine="keras"
 
 ### PyTorch mode
 
-For the clustering example, let's import KMeans and demonstrate how to use it with the ML Tutor library.
-Notice that you can train/test it just like any `sklearn` algorithm.
-
-Each algorithm has several arguments you can provide, but the unique one across all of them is `visual_training`. 
-If you set this to `True`, you will see the whole training process inside your IDE.
+If you decide to use CNN Raccoon for your PyTorch model, you'll implement your model in the same way as before. 
+To load images from your dataset into CNN Raccoon, convert them to the `PyTorch.Variable` object.
+The best way to achieve this is by using PyTorch's dataset loader.
+Check an example below for the `CIFAR10` dataset. 
 
 ```python
 # For PyTorch you define the model in the same way as before
@@ -78,46 +75,37 @@ inspector(model=model, images=images, number_of_classes=10, engine="keras")
 ![](images/kmeans-vt.gif)
 
 
+### Interactive network graph
+
+This library generates an interactive graph of your CNN directly in a browser. This graph allows you to click and inspect each layer inside your model.
+
 
 ### Weights inspector
 
-Every algorithm has method `.how_it_works()` which generates a blog post directly inside your IDE.
-Every blog is written by somebody from the community, not myself, and in the end, they get a shout out for the great material.
-```python
-from ml_tutor.classification.knn import KNeighbourClassifier
-
-clf = KNeighbourClassifier()
-clf.how_it_works()
-```
+Visualization of each Convolutional filter from your network
 
 ![](images/th.gif)
 
 
 ### GradCam
 
-If you call `.interview_questions()` on any algorithm, it will generate resources with interview questions for the algorithm.
+Based on the paper [Grad-CAM: Visual Explanations from Deep Networks
+via Gradient-based Localization
+](https://arxiv.org/pdf/1610.02391.pdf).
 
-```python
-from ml_tutor.classification.knn import KNeighbourClassifier
+To learn more about GradCam and Class Activation maps I do suggest reading through [this post](https://towardsdatascience.com/interpretability-in-deep-learning-with-w-b-cam-and-gradcam-45ba5296a58a). 
 
-clf = KNeighbourClassifier()
-clf.interview_questions()
-```
 
 ![](images/inter-q.png)
 
 ### Siliency Maps
 
-Since this is the library for education and not for production, you'll need to learn how to use these algorithms with the battle-tested library `sklearn`. Just call `.sklearn_version()` on any algorithm, and it will generate code for you!
+Based on the paper [Deep Inside Convolutional Networks: Visualising
+Image Classification Models and Saliency Maps
+](https://arxiv.org/pdf/1312.6034.pdf).
 
-NOTE: For now, this method only works in Jupyter Notebook!
+To learn more about Saliency Maps I do suggest reading through [this post](https://analyticsindiamag.com/what-are-saliency-maps-in-deep-learning/). 
 
-```python
-from ml_tutor.classification.knn import KNeighbourClassifier
-
-clf = KNeighbourClassifier()
-clf.sklearn_version()
-```
 
 ![](images/sklearn.gif)
 
@@ -152,7 +140,23 @@ pip install .
 
 #### PyTorch version 
 
+Install all requirements from `requirements.txt` file
+
+`pip install -r requirements.txt`
+
+After installing base, requirements make sure you have PyTorch `>1.5.0` version.
+Here is the PyTorch installation guide:
+https://pytorch.org/get-started/locally/
+
 #### TensorFlow version
+
+Install all requirements from `requirements.txt` file
+
+`pip install -r requirements.txt`
+
+After installing base, requirements make sure you have TensorFlow (w/ Keras API) `>2.0.0` version.
+Here is the TensorFlow (w/ Keras API) installation guide:
+https://www.tensorflow.org/install
 
 ## TODO
 
@@ -160,6 +164,8 @@ If you want to contribute to the CNN Raccoon, here is what's on the TODO list:
 
 - [ ] Silency Map for the __TensorFlow__ mode
 - [ ] Make dashboard responsive on smaller screens (< 1100px)
+- [ ] Interactive CNN Builder
+    - [ ] Drag n Drop network builder
 
 ## Contact
 
