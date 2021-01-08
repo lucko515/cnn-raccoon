@@ -11,8 +11,7 @@
 <h4 style="text-align: center;">Create interactive dashboards for your Convolutional Neural Networks (CNNs) with a single line of code!</h4>
 
 ---
-__CNN Raccoon__ helps you with inspecting what's going on inside your Convolutional Neural Networks in a visual way that's easy to understand.
-Oh! Did I mention that you don't need to change your code at all? And that you can do all of this on a single line of Python code?
+__CNN Raccoon__ helps you inspect what's going on inside your Convolutional Neural Networks in a visual way that's easy to understand. Oh! Did I mention that you don't need to change your code at all? And that you can do all of this with a single line of Python code?
 
 
 ## How to use it?
